@@ -46,6 +46,25 @@
           </li>
         </ul>
       </div>
+      <div>
+          Select a Schedule
+          <input name="schedule_group" type="radio" value="today" id="today" v-model="schedule_for"/>
+          <label for="today">Today</label>
+          <input name="schedule_group" type="radio" value="week" id="week" v-model="schedule_for"/>
+          <label for="week">This Week</label>
+          <input name="schedule_group" type="radio" value="month" id="month" v-model="schedule_for"/>
+          <label for="Today">This Month</label>
+      </div>
+      <div>
+          Select Minimum Age
+          <input name="Age_group" type="radio" value="18" id="18-above" v-model="min_age"/>
+          <label for="18-above">18+</label>
+          <input name="Age_group" type="radio" value="45" id="45-above" v-model="min_age"/>
+          <label for="18-above">45+</label>
+          <input name="Age_group" type="radio" value="all" id="all-above" v-model="min_age"/>
+          <label for="18-above">All</label>
+        </span>
+      </div>
     </div>
   </div>
   <script src="js/vendor/modernizr-3.11.2.min.js"></script>
@@ -60,9 +79,11 @@
       data : {
         all_states : [],
         all_districts : [],
+        all_sessions : [],
         selected_states : [],
         selected_districts : [],
-        selected_days : []
+        schedule_for : "today",
+        min_age : "18"
       },
       created : function() {
         let vm = this;
@@ -90,6 +111,56 @@
               .catch(function (error) {
                 console.log(error);
               });
+          }
+        },
+        selected_districts : function() {
+          this.getVaccineSessions();
+        },
+        schedule_for : function() {
+          this.getVaccineSessions();
+        },
+        min_age : function() {
+          this.getVaccineSessions();
+        }
+      },
+      methods : {
+        getVaccineSessions :  function () {
+          var vm = this;
+          vm.all_sessions = [];
+          if (vm.selected_districts.length <= 0) {
+            return;
+          }
+          let date_id = [];
+          let d = new Date();
+          if (vm.schedule_for == 'today') {
+            date_id.push(d.getDate() + "-" + (d.getMonth() + 1) + "-" + d.getFullYear());
+          }
+          else if (vm.schedule_for == 'week') {
+            for (let days = 0; days < 7; days++) {
+              date_id.push(d.getDate() + "-" + (d.getMonth() + 1) + "-" + d.getFullYear());
+              d.setDate(d.getDate() + 1);
+            }
+          }
+          else {
+            for (let days = 0; days < 30; days++) {
+              date_id.push(d.getDate() + "-" + (d.getMonth() + 1) + "-" + d.getFullYear());
+              d.setDate(d.getDate() + 1);
+            }
+          }
+          for (each_dist_id of vm.selected_districts) {
+            for (each_date_id of date_id) {
+              axios.get("https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/calendarByDistrict", {
+                params : {
+                  district_id : each_dist_id,
+                  date : each_date_id
+                }
+              }).then(function (response) {
+                vm.all_sessions = vm.all_sessions.concat(response.data.centers);
+              })
+              .catch(function (error) {
+                console.log(error);
+              });
+            }
           }
         }
       }
