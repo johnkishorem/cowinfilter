@@ -1,0 +1,18 @@
+ul {
+    list-style: none;
+}
+
+.grid-container {
+  display: grid;
+   grid-template-columns: auto auto auto;
+}
+
+.grid-states {
+    grid-column-start: 1;
+    grid-column-end: 2;
+}
+
+.grid-disricts {
+    grid-column-start: 2;
+    grid-column-end: 3;
+}

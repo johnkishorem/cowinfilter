@@ -18,24 +18,91 @@
 
   <link rel="stylesheet" href="css/normalize.css">
   <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/style.css">
 
   <meta name="theme-color" content="#fafafa">
 </head>
 
 <body>
 
-  <!-- Add your site or application content here -->
-  <p>Hello world! This is HTML5 Boilerplate.</p>
+  <h1>Co WIN - Winner over COVID 19</h1>
+  <div id="cowin-data">
+    <div class="grid-container">
+      <div class="grid-states">
+        <h2>Select a state</h2>
+        <ul>
+          <li v-for="each_state in all_states">
+            <input type="checkbox" v-bind:value="each_state.state_id" v-bind:value="each_state.state_id" v-model="selected_states"/>
+            <label v-bind:for="each_state.state_id">{{each_state.state_name}}</label>
+          </li>
+        </ul>  
+      </div>
+      <div class="grid-districts">
+        <h2>Select a district</h2>
+        <ul>
+          <li v-for="each_district in all_districts">
+            <input type="checkbox" v-bind:value="each_district.district_id" v-bind:value="each_district.district_id" v-model="selected_districts"/>
+            <label v-bind:for="each_district.district_id">{{each_district.district_name}}</label>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
   <script src="js/vendor/modernizr-3.11.2.min.js"></script>
   <script src="js/plugins.js"></script>
   <script src="js/main.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/axios@0.12.0/dist/axios.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lodash@4.13.1/lodash.min.js"></script>
+  <script>
+    var vm = new Vue({
+      el : '#cowin-data',
+      data : {
+        all_states : [],
+        all_districts : [],
+        selected_states : [],
+        selected_districts : [],
+        selected_days : []
+      },
+      created : function() {
+        let vm = this;
+        axios.get('https://cdn-api.co-vin.in/api/v2/admin/location/states')
+          .then(function (response) {
+            for (const each_state of response.data.states) {
+              vm.all_states.push(each_state);
+            }
+          })
+          .catch(function (error) {
+            console.log(error);
+          });
+      },
+      watch : {
+        selected_states : function () {
+          let vm = this;
+          vm.all_districts = [];
+          for (const each_state_id of this.selected_states) {
+            axios.get('https://cdn-api.co-vin.in/api/v2/admin/location/districts/' + each_state_id)
+              .then(function (response) {
+                for (const each_dist of response.data.districts) {
+                  vm.all_districts.push(each_dist);
+                }
+              })
+              .catch(function (error) {
+                console.log(error);
+              });
+          }
+        }
+      }
+    })
+  </script>
 
-  <!-- Google Analytics: change UA-XXXXX-Y to be your site's ID. -->
+  
+  <!-- Google Analytics: change UA-XXXXX-Y to be your site's ID.
   <script>
     window.ga = function () { ga.q.push(arguments) }; ga.q = []; ga.l = +new Date;
     ga('create', 'UA-XXXXX-Y', 'auto'); ga('set', 'anonymizeIp', true); ga('set', 'transport', 'beacon'); ga('send', 'pageview')
   </script>
-  <script src="https://www.google-analytics.com/analytics.js" async></script>
+  <script src="https://www.google-analytics.com/analytics.js" async></script> -->
 </body>
 
 </html>
