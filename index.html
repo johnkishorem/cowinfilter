@@ -80,6 +80,7 @@
         all_states : [],
         all_districts : [],
         all_sessions : [],
+        filtered_centers : [],
         selected_states : [],
         selected_districts : [],
         schedule_for : "today",
@@ -96,6 +97,29 @@
           .catch(function (error) {
             console.log(error);
           });
+      },
+      computed : {
+        selected_dates : function() {
+          let date_id = [];
+          let d = new Date();
+          let vm = this;
+          if (vm.schedule_for == 'today') {
+            date_id.push(d.getDate() + "-" + (d.getMonth() + 1) + "-" + d.getFullYear());
+          }
+          else if (vm.schedule_for == 'week') {
+            for (let days = 0; days < 7; days++) {
+              date_id.push(d.getDate() + "-" + (d.getMonth() + 1) + "-" + d.getFullYear());
+              d.setDate(d.getDate() + 1);
+            }
+          }
+          else {
+            for (let days = 0; days < 30; days++) {
+              date_id.push(d.getDate() + "-" + (d.getMonth() + 1) + "-" + d.getFullYear());
+              d.setDate(d.getDate() + 1);
+            }
+          }
+          return date_id;
+        }
       },
       watch : {
         selected_states : function () {
@@ -116,7 +140,7 @@
         selected_districts : function() {
           this.getVaccineSessions();
         },
-        schedule_for : function() {
+        selected_dates : function() {
           this.getVaccineSessions();
         },
         min_age : function() {
@@ -130,25 +154,8 @@
           if (vm.selected_districts.length <= 0) {
             return;
           }
-          let date_id = [];
-          let d = new Date();
-          if (vm.schedule_for == 'today') {
-            date_id.push(d.getDate() + "-" + (d.getMonth() + 1) + "-" + d.getFullYear());
-          }
-          else if (vm.schedule_for == 'week') {
-            for (let days = 0; days < 7; days++) {
-              date_id.push(d.getDate() + "-" + (d.getMonth() + 1) + "-" + d.getFullYear());
-              d.setDate(d.getDate() + 1);
-            }
-          }
-          else {
-            for (let days = 0; days < 30; days++) {
-              date_id.push(d.getDate() + "-" + (d.getMonth() + 1) + "-" + d.getFullYear());
-              d.setDate(d.getDate() + 1);
-            }
-          }
           for (each_dist_id of vm.selected_districts) {
-            for (each_date_id of date_id) {
+            for (each_date_id of vm.selected_dates) {
               axios.get("https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/calendarByDistrict", {
                 params : {
                   district_id : each_dist_id,
