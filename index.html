@@ -104,21 +104,42 @@
           let d = new Date();
           let vm = this;
           if (vm.schedule_for == 'today') {
-            date_id.push(d.getDate() + "-" + (d.getMonth() + 1) + "-" + d.getFullYear());
+            date_id.push(("0" + d.getDate()).slice(-2) 
+              + "-" 
+              + ("0" + (d.getMonth() + 1)).slice(-2)
+              + "-" 
+              + d.getFullYear());
           }
           else if (vm.schedule_for == 'week') {
             for (let days = 0; days < 7; days++) {
-              date_id.push(d.getDate() + "-" + (d.getMonth() + 1) + "-" + d.getFullYear());
+              date_id.push( ("0" + d.getDate()).slice(-2) 
+                + "-" 
+                + ("0" + (d.getMonth() + 1)).slice(-2) 
+                + "-" 
+                + d.getFullYear());
               d.setDate(d.getDate() + 1);
             }
           }
           else {
             for (let days = 0; days < 30; days++) {
-              date_id.push(d.getDate() + "-" + (d.getMonth() + 1) + "-" + d.getFullYear());
+              date_id.push(("0" + d.getDate()).slice(-2) 
+                + "-" 
+                + ("0" + (d.getMonth() + 1)).slice(-2) 
+                + "-" 
+                + d.getFullYear());
               d.setDate(d.getDate() + 1);
             }
           }
           return date_id;
+        },
+        selected_min_age_limit : function() {
+          let ret_integer = parseInt(this.min_age);
+          if (isNaN(ret_integer)) {
+            return 0;
+          }
+          else {
+            return ret_integer;
+          }
         }
       },
       watch : {
@@ -143,8 +164,8 @@
         selected_dates : function() {
           this.getVaccineSessions();
         },
-        min_age : function() {
-          this.getVaccineSessions();
+        selected_min_age_limit : function() {
+          this.filterVaccineSessions();
         }
       },
       methods : {
@@ -163,10 +184,49 @@
                 }
               }).then(function (response) {
                 vm.all_sessions = vm.all_sessions.concat(response.data.centers);
+                vm.filterVaccineSessions();
               })
               .catch(function (error) {
                 console.log(error);
               });
+            }
+          }
+        },
+        filterVaccineSessions : function() {
+          var vm = this;
+          vm.filtered_centers = [];
+          if (vm.all_sessions.length <= 0) {
+            //No vaccine centers to fitler
+            return;
+          }
+          for (each_center of vm.all_sessions) {
+            let session_found = false;
+            let available_sessions = Array(vm.selected_dates.length);
+            for (const [index, each_selected_date] of vm.selected_dates.entries()) {
+              let selected_date_session = each_center.sessions.find( element => element.date == each_selected_date);
+              if (   (selected_date_session)
+                  && (selected_date_session.available_capacity > 0) 
+                  && (selected_date_session.min_age_limit <= vm.selected_min_age_limit)) {
+               session_found = true;
+               available_sessions[index] = { available_capacity : selected_date_session.available_capacity,
+                min_age_limit : selected_date_session.min_age_limit};
+              }
+              else
+              {
+                available_sessions[index] = undefined;
+              }
+            }
+            if (session_found) {
+              let vac_center = {
+                center_name : each_center.name,
+                state_name  : each_center.state_name,
+                district_name : each_center.district_name,
+                block_name : each_center.block_name,
+                pincode : each_center.pincode,
+                fee_type : each_center.fee_type,
+                sessions : available_sessions
+              };
+              vm.filtered_centers.push(vac_center);
             }
           }
         }
