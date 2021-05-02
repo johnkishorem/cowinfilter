@@ -2,6 +2,7 @@
 body {
     background-color: #eee;
     color:darkslategrey;
+    font-family: Arial, Helvetica, sans-serif;
 }
 
 
@@ -30,7 +31,30 @@ section  {
     grid-column-end: 3;
 }
 
-table {
+#custom-table {
+  font-family: Arial, Helvetica, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+#custom-table td, #custom-table th {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+
+#custom-table tr:nth-child(even){background-color: #f2f2f2;}
+
+#custom-table tr:hover {background-color: #ddd;}
+
+#custom-table th {
+  padding-top: 12px;
+  padding-bottom: 12px;
+  text-align: left;
+  background-color: #9e7730;
+  color: white;
+}
+
+#custom-table td {
     text-align: center;
 }
 
@@ -167,3 +191,21 @@ table {
   border-radius: 50%;
   background: white;
 } 
+
+.center-name {
+    font-weight: bold;
+}
+
+.center-district {
+    background-color:darkblue;
+    color: white;
+}
+.center-state {
+    color: firebrick;
+}
+.vaccine-capacity {
+    color: #9e7730;
+}
+.vaccine-min-age-limit {
+    background-color: yellowgreen;
+}

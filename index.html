@@ -77,21 +77,22 @@
     </div>
     <div v-if="filtered_centers.length > 0">
         Found  {{filtered_centers.length}} centers as listed below
-        <table>
+        <table id="custom-table">
           <tr>
             <th>Center Name</th>
             <th v-for="each_date in selected_dates">{{each_date}}</th>
           </tr>
           <tr v-if="filtered_centers!=null" v-for="each_center in filtered_centers">
-            <th>
-              {{each_center.center_name}}<br/>
-              {{each_center.district_name}}<br/>
-              {{each_center.state_name}}
-            </th>
+            <td>
+              <span class="center-name">{{each_center.center_name}}<br/></span>
+              <span class="center-district">{{each_center.district_name}}<br/></span>
+              <span class="center-state">{{each_center.state_name}}</span>
+            </td>
             <td v-if="each_center.sessions!=null" v-for="each_day in each_center.sessions">
               <span v-if="each_day === undefined">-</span>
               <span v-else>
-                {{each_day.available_capacity}} | {{each_day.min_age_limit}}+
+                <span class="vaccine-capacity">{{parseInt(each_day.available_capacity)}}</span><br/>
+                <span class="vaccine-min-age-limit">{{each_day.min_age_limit}}+</span>
               </span>
             </td>
           </tr>
