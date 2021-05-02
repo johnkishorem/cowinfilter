@@ -66,6 +66,31 @@
         </span>
       </div>
     </div>
+    <div v-if="filtered_centers.length > 0">
+        Found  {{filtered_centers.length}} centers as listed below
+        <table>
+          <tr>
+            <th>Center Name</th>
+            <th v-for="each_date in selected_dates">{{each_date}}</th>
+          </tr>
+          <tr v-if="filtered_centers!=null" v-for="each_center in filtered_centers">
+            <th>
+              {{each_center.center_name}}<br/>
+              {{each_center.district_name}}<br/>
+              {{each_center.state_name}}
+            </th>
+            <td v-if="each_center.sessions!=null" v-for="each_day in each_center.sessions">
+              <span v-if="each_day === undefined">-</span>
+              <span v-else>
+                {{each_day.available_capacity}} | {{each_day.min_age_limit}}+
+              </span>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div v-else>
+        No vaccine center available according to the filter. Please change the filter or try again later
+      </div>
   </div>
   <script src="js/vendor/modernizr-3.11.2.min.js"></script>
   <script src="js/plugins.js"></script>
@@ -135,7 +160,7 @@
         selected_min_age_limit : function() {
           let ret_integer = parseInt(this.min_age);
           if (isNaN(ret_integer)) {
-            return 0;
+            return 200; // I think no human has ever lived that long
           }
           else {
             return ret_integer;
